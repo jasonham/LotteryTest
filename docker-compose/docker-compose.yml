@@ -1,0 +1,25 @@
+services:
+  frontend:
+    image: registry.cn-shanghai.aliyuncs.com/memories/village_registry.cn-shanghai.aliyuncs.com/memories/lottery-test:management_system_vue:lastest
+    container_name: frontend
+    hostname: frontend
+    restart: always
+    volumes:
+      - lottery:/app
+
+  nginx:
+    image: nginx
+    container_name: vms-nginx
+    hostname: vms-nginx
+    restart: always
+    ports:
+      - '80:80' # host物理直接映射端口为80
+    volumes:
+      - ./nginx/lottery.conf:/etc/nginx/conf.d/lottery.conf
+      - lottery:/var/www/lottery.com
+    depends_on:
+      - frontend
+volumes:
+  lottery:
+networks:
+  default:
