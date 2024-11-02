@@ -1,0 +1,45 @@
+# 该工作流将执行 Node 依赖项的干净安装、缓存/恢复、构建源代码并在不同版本的 Node 上运行测试
+# 更多信息请参见: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+# 指定工作流的名称
+name: Node.js CI
+
+# 定义触发工作流的事件
+on:
+  # 当推送到 main 分支时触发工作流
+  push:
+    branches: ["main"]
+  # 当创建到 main 分支的拉取请求时触发工作流
+  pull_request:
+    branches: ["main"]
+
+# 定义要运行的任务
+jobs:
+  # 定义一个名为 build 的任务
+  build:
+    # 指定任务在最新版本的 Ubuntu 上运行
+    runs-on: ubuntu-latest
+
+    # 定义任务的策略，以在不同版本的 Node 上运行
+    strategy:
+      matrix:
+        # 指定要使用的 Node 版本
+        node-version: [22.x]
+        # 查看支持的 Node.js 发布计划: https://nodejs.org/en/about/releases/
+
+    # 定义任务的步骤
+    steps:
+      # 从仓库检出代码
+      - uses: actions/checkout@v4
+      # 设置指定版本的 Node.js
+      - name: 使用 Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          # 指定要使用的 Node 版本
+          node-version: ${{ matrix.node-version }}
+          # 启用 npm 依赖项的缓存和恢复
+          cache: "npm"
+      # 运行命令以安装依赖项
+      - run: npm install --force
+      # 如果存在则运行构建脚本
+      - run: npm run build --if-present
